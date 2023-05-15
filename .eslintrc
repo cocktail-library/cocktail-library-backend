@@ -1,0 +1,20 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parserOptions": { "ecmaVersion": 2018, "sourceType": "module" },
+  "rules": {
+    "no-extra-semi": "error",
+    "semi": ["error", "never"],
+    "no-unused-vars": "error",
+    "quotes": ["error", "single"],
+    "indent": ["error", 2],
+    "block-spacing": ["error", "always"],
+    "no-multi-spaces": "error",
+    "no-trailing-spaces": "error",
+    "object-curly-spacing": ["error", "always"]
+  }
+}
