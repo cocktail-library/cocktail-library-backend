@@ -3,7 +3,7 @@ version: '3.4'
 services:
   postgres:
     container_name: cocktails-postgres-${CONTAINER_NS}
-    image: postgres:15.3-apline
+    image: postgres:15.3-alpine
     restart: always
     environment:
       POSTGRES_USER: ${COCKTAILS__DB_USER}
