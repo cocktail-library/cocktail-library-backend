@@ -13,11 +13,11 @@ export interface DbConfig {
 }
 
 const db: DbConfig = {
-  username: process.env.DB__USER || 'postgres',
-  password: process.env.DB_PASSWORD || '12345',
-  database: process.env.DB__DATABASE || 'postgres',
-  host: process.env.DB__HOST || 'localhost',
-  port: process.env.DB__PORT || 5432,
+  username: process.env.COCKTAILS__DB_USER || 'postgres',
+  password: process.env.COCKTAILS__DB_PASSWORD || '12345',
+  database: process.env.COCKTAILS__DB_DATABASE || 'postgres',
+  host: process.env.COCKTAILS__DB__HOST || 'localhost',
+  port: process.env.COCKTAILS__DB_PORT || 5432,
   dialect: 'postgres',
 }
 

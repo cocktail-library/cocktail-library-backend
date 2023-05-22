@@ -1,0 +1,27 @@
+version: '3.4'
+
+services:
+  postgres:
+    container_name: cocktails-postgres-${CONTAINER_NS}
+    image: postgres:15.3-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${COCKTAILS__DB_USER}
+      POSTGRES_DB: ${COCKTAILS__DB_DATABASE}
+      POSTGRES_PASSWORD: ${COCKTAILS__DB_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${COCKTAILS__DB_EXTERNAL_PORT}:5432"
+    volumes:
+      - ${COCKTAILS__PGDATA_PATH}:/var/lib/postgresql/data/pgdata
+
+  server:
+    container_name: cocktails-backend-${CONTAINER_NS}
+    image: registry.fritsler.ru/cocktail-library-backend:${BUILD_VER}
+    restart: always
+    env_file:
+      - .env
+    links:
+      - postgres
+    ports:
+      - "${COCKTAILS__SERVER_PORT}:6000"
