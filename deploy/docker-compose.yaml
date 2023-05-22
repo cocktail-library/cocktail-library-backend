@@ -16,7 +16,7 @@ services:
       - ${COCKTAILS__PGDATA_PATH}:/var/lib/postgresql/data/pgdata
 
   server:
-    container_name: cocktails-server-${CONTAINER_NS}
+    container_name: cocktails-backend-${CONTAINER_NS}
     image: registry.fritsler.ru/cocktail-library-backend:${BUILD_VER}
     restart: always
     env_file:
@@ -25,14 +25,3 @@ services:
       - postgres
     ports:
       - "${COCKTAILS__SERVER_PORT}:6000"
-
-  metabase:
-    container_name: cocktails-metabase-${CONTAINER_NS}
-    image: metabase/metabase:latest
-    restart: always
-    volumes:
-      - ../metabase-data:/metabase-data
-    ports:
-      - "${COCKTAILS__METABASE_PORT}:3000"
-    env_file:
-      - .env
