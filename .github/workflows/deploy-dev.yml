@@ -1,0 +1,62 @@
+name: Dev - Build & Deploy
+on:
+  push:
+    branches:
+      - deploy/test
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: 'Log container tag'
+        run: echo "cocktail-library-backend:$GITHUB_SHA"
+
+      - name: Build the Docker image
+        run: |
+          docker build . --file Dockerfile --tag registry.fritsler.ru/cocktail-library-backend:$GITHUB_SHA
+
+      - name: Login to registry
+        uses: docker/login-action@v2
+        with:
+          registry: registry.fritsler.ru
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push image to registry
+        run: |
+          docker push registry.fritsler.ru/cocktail-library-backend:$GITHUB_SHA
+
+  deploy:
+    runs-on: self-hosted
+    needs: build
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Copy files for staging
+        uses: appleboy/scp-action@master
+        with:
+          host: fritsler.ru
+          key: ${{ secrets.MACHINE_KEY }}
+          username: ${{ secrets.MACHINE_USER }}
+          source: start.sh, deploy/docker-compose.yaml
+          target: ${{ secrets.MACHINE_PATH }}
+
+      - name: Pull image and deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: fritsler.ru
+          key: ${{ secrets.MACHINE_KEY }}
+          username: ${{ secrets.MACHINE_USER }}
+          envs: DIR,PORT,IMAGE,GITHUB_SHA
+          script: |
+            cd $DIR &&
+            echo BUILD_VER=$GITHUB_SHA >> .env && 
+            bash start.sh
+        env:
+          DIR: ${{ secrets.MACHINE_PATH }}
+          PORT: 22
+          IMAGE: registry.fritsler.ru/cocktail-library-backend
