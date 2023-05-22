@@ -17,7 +17,7 @@ services:
 
   server:
     container_name: cocktails-server-${CONTAINER_NS}
-    image: registry.fritsler.ru/cocktail-library-server:${BUILD_VER}
+    image: registry.fritsler.ru/cocktail-library-backend:${BUILD_VER}
     restart: always
     env_file:
       - .env

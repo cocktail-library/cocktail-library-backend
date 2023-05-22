@@ -9,7 +9,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: 'Log container tag'
         run: echo "cocktail-library-backend:$GITHUB_SHA"
@@ -34,7 +34,7 @@ jobs:
     needs: build
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Copy files for staging
         uses: appleboy/scp-action@master
