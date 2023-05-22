@@ -54,6 +54,7 @@ jobs:
           envs: DIR,PORT,IMAGE,GITHUB_SHA
           script: |
             cd $DIR &&
+            cp ../.env.backend .env &&
             echo BUILD_VER=$GITHUB_SHA >> .env && 
             bash start.sh
         env:
