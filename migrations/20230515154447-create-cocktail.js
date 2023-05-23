@@ -5,7 +5,7 @@ const { DataTypes } = require('sequelize')
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up ({ context } ) {
+  async up ({ context }) {
     const { queryInterface } = context.sequelize
     await queryInterface.createTable('Cocktails', {
       id: {

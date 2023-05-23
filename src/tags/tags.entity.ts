@@ -2,9 +2,11 @@ import { DataTypes, Sequelize } from 'sequelize'
 import { nanoid } from 'nanoid'
 
 interface ITag {
-    id: number;
-    tagId: string;
-    name: string;
+  id: number;
+  tagId: string;
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const TagsEntity = (sequelize: Sequelize) => sequelize.define('Tag', {
@@ -19,6 +21,12 @@ const TagsEntity = (sequelize: Sequelize) => sequelize.define('Tag', {
   },
   name: {
     type: DataTypes.STRING,
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
   },
 })
 

@@ -1,6 +1,6 @@
 import { sequelize } from '../db-connection'
 import { GenericRepository } from '../generic/generic.repository'
-import { ICocktail, Cocktail } from './cocktails.entity'
+import { Cocktail, ICocktail } from './cocktails.entity'
 import { injectable } from 'inversify'
 
 @injectable()

@@ -1,44 +1,41 @@
 import { DataTypes, Sequelize } from 'sequelize'
 import { nanoid } from 'nanoid'
 
-interface ICocktail {
+interface IIngredient {
   id: number;
-  tagId: string;
+  ingredientId: string;
   name: string;
-  description: string;
-  abv: number;
+  unitName: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-const CocktailsEntity = (sequelize: Sequelize) => sequelize.define('Cocktail', {
+const IngredientsEntity = (sequelize: Sequelize) => sequelize.define('Ingredient', {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  cocktailId: {
+  ingredientId: {
     type: DataTypes.STRING,
     defaultValue: () => nanoid()
   },
   name: {
     type: DataTypes.STRING,
+    allowNull: false,
   },
-  description: {
-    type: DataTypes.TEXT,
-  },
-  abv: {
-    type: DataTypes.DECIMAL,
+  unitName: {
+    type: DataTypes.STRING,
   },
   createdAt: {
     type: DataTypes.DATE,
   },
   updatedAt: {
     type: DataTypes.DATE,
-  },
+  }
 })
 
 export {
-  CocktailsEntity as Cocktail,
-  ICocktail
+  IngredientsEntity as Ingredient,
+  IIngredient
 }
