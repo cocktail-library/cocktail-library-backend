@@ -24,4 +24,4 @@ services:
     links:
       - postgres
     ports:
-      - "${COCKTAILS__SERVER_PORT}:6000"
+      - "${COCKTAILS__SERVER_PORT}:4000"
