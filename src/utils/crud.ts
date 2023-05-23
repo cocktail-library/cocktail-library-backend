@@ -61,6 +61,14 @@ class Crud {
   }
 
   /**
+   * @param entity
+   * @param payload
+   */
+  static async bulkCreateEntity(entity: Entity, payload: Record<string, any>[]) {
+    return await entity.bulkCreate(payload)
+  }
+
+  /**
      * @param entity
      * @param idFieldName
      * @param id

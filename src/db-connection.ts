@@ -3,7 +3,7 @@ import { db as dbConfig } from './config'
 
 const connectionOptions = {
   ...dbConfig,
-  logging: false,
+  logging: true,
 } as Options
 
 const sequelize = new Sequelize(connectionOptions)

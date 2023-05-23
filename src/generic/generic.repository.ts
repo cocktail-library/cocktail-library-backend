@@ -3,9 +3,9 @@ import { Entity } from '../global'
 
 class GenericRepository {
   readonly entity: Entity
-  readonly idFieldName: string
+  readonly idFieldName: string | null
 
-  constructor(entity: Entity, idFieldName: string) {
+  constructor(entity: Entity, idFieldName: string | null) {
     this.entity = entity
     this.idFieldName = idFieldName
   }
@@ -15,10 +15,16 @@ class GenericRepository {
   }
 
   get(id: string | number) {
+    if (!this.idFieldName) {
+      throw new Error('no id field name')
+    }
     return Crud.getEntity(this.entity, this.idFieldName, id)
   }
 
   async includes(id: string | number) {
+    if (!this.idFieldName) {
+      throw new Error('no id field name')
+    }
     const count = await Crud.countEntity(this.entity, { where: { [this.idFieldName]: id }, limit: 1, offset: 0 })
     return !!count
   }
@@ -27,7 +33,14 @@ class GenericRepository {
     return Crud.createEntity(this.entity, payload)
   }
 
+  bulkCreate<T>(payload: Partial<T>[]) {
+    return Crud.bulkCreateEntity(this.entity, payload)
+  }
+
   update<T>(id: string | number, payload: Partial<T>) {
+    if (!this.idFieldName) {
+      throw new Error('no id field name')
+    }
     return Crud.updateEntity(this.entity, this.idFieldName, id, payload)
   }
 
