@@ -1,7 +1,7 @@
 import { Crud } from '../utils/crud'
 import { Entity } from '../global'
 
-class GenericRepository {
+class GenericRepository<T> {
   readonly entity: Entity
   readonly idFieldName: string | null
 
@@ -10,7 +10,7 @@ class GenericRepository {
     this.idFieldName = idFieldName
   }
 
-  listAll<T>(offset = 0, limit = 100, where = {}) {
+  listAll(offset = 0, limit = 100, where = {}) {
     return Crud.listEntity<T>(this.entity, { offset, limit, where })
   }
 
@@ -29,15 +29,15 @@ class GenericRepository {
     return !!count
   }
 
-  create<T>(payload: Partial<T>) {
+  create(payload: Partial<T>) {
     return Crud.createEntity(this.entity, payload)
   }
 
-  bulkCreate<T>(payload: Partial<T>[]) {
+  bulkCreate(payload: Partial<T>[]) {
     return Crud.bulkCreateEntity(this.entity, payload)
   }
 
-  update<T>(id: string | number, payload: Partial<T>) {
+  update(id: string | number, payload: Partial<T>) {
     if (!this.idFieldName) {
       throw new Error('no id field name')
     }

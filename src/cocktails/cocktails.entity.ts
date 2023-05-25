@@ -2,7 +2,7 @@ import { DataTypes, Sequelize } from 'sequelize'
 import { nanoid } from 'nanoid'
 import { ITag } from '../tags/tags.entity'
 import { IReview } from '../reviews/reviews.entity'
-import { IIngredient } from '../ingredients/ingredients.entity'
+import { IExtendedCocktailIngredient } from '../ingredients/ingredients.entity'
 
 interface ICocktail {
   id: number;
@@ -15,10 +15,7 @@ interface ICocktail {
   updatedAt: Date;
   tags?: ITag[];
   reviews?: IReview[];
-  ingredients?: {
-    ingredient: IIngredient;
-    unitCount: number;
-  }[];
+  ingredients?: IExtendedCocktailIngredient[];
 }
 
 const CocktailsEntity = (sequelize: Sequelize) => sequelize.define('Cocktail', {

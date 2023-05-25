@@ -5,7 +5,7 @@ import { injectable } from 'inversify'
 
 @injectable()
 class TagsRepository {
-  private baseRepository: GenericRepository
+  private baseRepository: GenericRepository<ITag>
   constructor() {
     this.baseRepository = new GenericRepository(Tag(sequelize), 'tagId')
   }

@@ -10,6 +10,10 @@ interface IIngredient {
   updatedAt: Date;
 }
 
+interface IExtendedCocktailIngredient extends IIngredient {
+  unitCount: number;
+}
+
 const IngredientsEntity = (sequelize: Sequelize) => sequelize.define('Ingredient', {
   id: {
     type: DataTypes.INTEGER,
@@ -37,5 +41,6 @@ const IngredientsEntity = (sequelize: Sequelize) => sequelize.define('Ingredient
 
 export {
   IngredientsEntity as Ingredient,
-  IIngredient
+  IIngredient,
+  IExtendedCocktailIngredient,
 }

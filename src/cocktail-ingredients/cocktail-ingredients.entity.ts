@@ -6,7 +6,7 @@ interface ICocktailIngredient {
   unitCount: number;
 }
 
-const CocktailIngredientEntity = (sequelize: Sequelize) => sequelize.define('CocktailTag', {
+const CocktailIngredientEntity = (sequelize: Sequelize) => sequelize.define('CocktailIngredient', {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,

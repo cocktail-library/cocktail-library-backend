@@ -28,11 +28,11 @@ class Transformer {
   }
 
   static getExtendedArrayDifference(left: string[], right: string[]) {
-    return [
-      this.getArrayDifference(left, right),
-      this.getCommon(left, right),
-      this.getArrayDifference(right, left)
-    ]
+    return {
+      left: this.getArrayDifference(left, right),
+      common: this.getCommon(left, right),
+      right: this.getArrayDifference(right, left)
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -63,6 +63,11 @@ class Transformer {
     const result: Record<string, T[]> = {}
     Object.keys(obj).forEach(key => result[key] = obj[key].map(mapFunction) as T[])
     return result
+  }
+
+  static forceExtractField<T, R>(obj: T, fieldName: string): R {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return ((obj as any)[fieldName]) as R
   }
 }
 
