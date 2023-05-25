@@ -4,11 +4,6 @@ import { ITag } from '../tags/tags.entity'
 import { IReview } from '../reviews/reviews.entity'
 import { IIngredient } from '../ingredients/ingredients.entity'
 
-interface ICocktailIngredient {
-  ingredient: IIngredient;
-  unitCount: number;
-}
-
 interface ICocktail {
   id: number;
   cocktailId: string;
@@ -20,7 +15,10 @@ interface ICocktail {
   updatedAt: Date;
   tags?: ITag[];
   reviews?: IReview[];
-  ingredients?: ICocktailIngredient[];
+  ingredients?: {
+    ingredient: IIngredient;
+    unitCount: number;
+  }[];
 }
 
 const CocktailsEntity = (sequelize: Sequelize) => sequelize.define('Cocktail', {
@@ -53,5 +51,4 @@ const CocktailsEntity = (sequelize: Sequelize) => sequelize.define('Cocktail', {
 export {
   CocktailsEntity as Cocktail,
   ICocktail,
-  ICocktailIngredient,
 }
