@@ -1,36 +1,45 @@
 import { DataTypes, Sequelize } from 'sequelize'
 import { nanoid } from 'nanoid'
 
-interface ITag {
+interface IReview {
   id: number;
-  tagId: string;
-  name: string;
+  reviewId: string;
+  cocktailId: string;
+  rating: number;
+  text: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-const TagsEntity = (sequelize: Sequelize) => sequelize.define('Tag', {
+const ReviewsEntity = (sequelize: Sequelize) => sequelize.define('Review', {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  tagId: {
+  reviewId: {
     type: DataTypes.STRING,
     defaultValue: () => nanoid()
   },
-  name: {
+  cocktailId: {
     type: DataTypes.STRING,
+    allowNull: false,
+  },
+  rating: {
+    type: DataTypes.DECIMAL,
+  },
+  text: {
+    type: DataTypes.TEXT,
   },
   createdAt: {
     type: DataTypes.DATE,
   },
   updatedAt: {
     type: DataTypes.DATE,
-  },
+  }
 })
 
 export {
-  TagsEntity as Tag,
-  ITag
+  ReviewsEntity as Review,
+  IReview
 }
