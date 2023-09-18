@@ -18,8 +18,8 @@ class CocktailsController {
   async listAll(req: Request) {
     const offset = Number(req.query.offset) || 0
     const limit = Number(req.query.limit) || 100
-
-    return await this.cocktailsService.listCocktails(offset, limit)
+    const where = req.query
+    return await this.cocktailsService.listCocktails(offset, limit, where)
   }
 
   async get(req: Request) {

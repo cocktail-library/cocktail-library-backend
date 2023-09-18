@@ -8,6 +8,7 @@ import { CocktailTag, ICocktailTag } from '../cocktail-tags/cocktail-tags.entity
 import { Transformer } from '../utils/transformer'
 import { IExtendedCocktailIngredient, IIngredient, Ingredient } from '../ingredients/ingredients.entity'
 import { CocktailIngredient, ICocktailIngredient } from '../cocktail-ingredients/cocktail-ingredients.entity'
+import { CocktailListAllFilters } from './cocktails.types'
 
 @injectable()
 class CocktailsRepository {
@@ -27,7 +28,7 @@ class CocktailsRepository {
     this.ingredientRepository = new GenericRepository(Ingredient(sequelize), 'ingredientId')
   }
 
-  async listAll(offset = 0, limit = 100, where = {}) {
+  async listAll(offset = 0, limit = 100, where: CocktailListAllFilters) {
     const cocktails = await this.baseRepository.listAll(offset, limit, where)
     const extendedCocktailsData = await this.getExtendedCocktails(cocktails.result)
 
