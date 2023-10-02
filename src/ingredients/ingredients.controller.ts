@@ -19,28 +19,28 @@ class IngredientsController {
     const offset = Number(req.query.offset) || 0
     const limit = Number(req.query.limit) || 100
 
-    return await this.ingredientsService.listCocktails(offset, limit)
+    return await this.ingredientsService.listIngredients(offset, limit)
   }
 
   async get(req: Request) {
     const { ingredientId } = req.params
-    return await this.ingredientsService.getCocktail(ingredientId)
+    return await this.ingredientsService.getIngredient(ingredientId)
   }
 
   async update(req: Request) {
     const { ingredientId } = req.params
     const payload = req.body
-    return await this.ingredientsService.updateCocktail(ingredientId, payload)
+    return await this.ingredientsService.updateIngredient(ingredientId, payload)
   }
 
   async create(req: Request) {
     const payload = req.body
-    return await this.ingredientsService.createCocktail(payload)
+    return await this.ingredientsService.createIngredient(payload)
   }
 
   async delete(req: Request) {
     const { ingredientId } = req.params
-    await this.ingredientsService.deleteCocktail(ingredientId)
+    await this.ingredientsService.deleteIngredient(ingredientId)
   }
 }
 

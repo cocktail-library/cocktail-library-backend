@@ -29,17 +29,46 @@ class CocktailsRepository {
   }
 
   async listAll(offset = 0, limit = 100, where: CocktailListAllFilters) {
-    const cocktails = await this.baseRepository.listAll(offset, limit, where)
-    const extendedCocktailsData = await this.getExtendedCocktails(cocktails.result)
+    const tagIds = where.tagIds
+    const ingredientIds = where.ingredientIds
+    delete where.tagIds
+    delete where.ingredientIds
+
+    let idsFilteredByTag: string[] | null = null
+    if (tagIds) {
+      const cocktailsTags = await this.cocktailTagRepository.listAll(0, 1000, { tagId: tagIds })
+      idsFilteredByTag = cocktailsTags.result.map(({ cocktailId }) => cocktailId)
+    }
+    let idsFilteredByIngredient: string[] | null = null
+    if (ingredientIds) {
+      const cocktailIngredients = await this.cocktailIngredientRepository.listAll(0, 1000, { ingredientId: ingredientIds })
+      idsFilteredByIngredient = cocktailIngredients.result.map(({ cocktailId }) => cocktailId)
+    }
+
+    const cocktails = await this.baseRepository.listAll(offset, 1000)
+    const filteredCocktailsList = cocktails.result
+      .filter(({ cocktailId }) => !idsFilteredByTag || idsFilteredByTag.includes(cocktailId))
+      .filter(({ cocktailId }) => !idsFilteredByIngredient || idsFilteredByIngredient.includes(cocktailId))
+    const total = filteredCocktailsList.length + offset
+    const slicedCocktailsList = filteredCocktailsList.slice(0, limit)
+    const extendedCocktailsData = await this.getExtendedCocktails(slicedCocktailsList)
 
     return {
       ...cocktails,
-      result: extendedCocktailsData
+      result: extendedCocktailsData,
+      total,
     }
   }
 
   async get(cocktailId: string): Promise<ICocktail> {
     const cocktailData = await this.baseRepository.get(cocktailId)
+    const extendedCocktailData = await this.getExtendedCocktails([cocktailData])
+    return extendedCocktailData[0]
+  }
+
+  async getBySlug(slug: string): Promise<ICocktail> {
+    const cocktailsArr = await this.baseRepository.listAll(0, 1, { where: { slug } })
+    const cocktailData = cocktailsArr.result[0]
     const extendedCocktailData = await this.getExtendedCocktails([cocktailData])
     return extendedCocktailData[0]
   }

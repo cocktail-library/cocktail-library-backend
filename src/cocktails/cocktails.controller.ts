@@ -19,18 +19,29 @@ class CocktailsController {
     const offset = Number(req.query.offset) || 0
     const limit = Number(req.query.limit) || 100
     const where = req.query
-    return await this.cocktailsService.listCocktails(offset, limit, where)
+    if (req.query.tagIds) {
+      where.tagIds = req.query.tagIds.toString().split(',')
+    }
+    if (req.query.ingredientIds) {
+      where.tagIds = req.query.ingredientIds.toString().split(',')
+    }
+
+    const result = await this.cocktailsService.listCocktails(offset, limit, where)
+    return {
+      ...result,
+      query: req.query,
+    }
   }
 
   async get(req: Request) {
-    const { taskStrId } = req.params
-    return await this.cocktailsService.getCocktail(taskStrId)
+    const { cocktailStrId } = req.params
+    return await this.cocktailsService.getCocktail(cocktailStrId)
   }
 
   async update(req: Request) {
-    const { taskStrId } = req.params
+    const { cocktailStrId } = req.params
     const payload = req.body
-    return await this.cocktailsService.updateCocktail(taskStrId, payload)
+    return await this.cocktailsService.updateCocktail(cocktailStrId, payload)
   }
 
   async create(req: Request) {
@@ -39,8 +50,8 @@ class CocktailsController {
   }
 
   async delete(req: Request) {
-    const { taskStrId } = req.params
-    await this.cocktailsService.deleteCocktail(taskStrId)
+    const { cocktailStrId } = req.params
+    await this.cocktailsService.deleteCocktail(cocktailStrId)
   }
 }
 
