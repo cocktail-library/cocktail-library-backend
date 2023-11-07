@@ -4,7 +4,6 @@ import { Cocktail, ICocktail } from './cocktails.entity'
 import { injectable } from 'inversify'
 import { ITag, Tag } from '../tags/tags.entity'
 import { IReview, Review } from '../reviews/reviews.entity'
-import { CocktailTag, ICocktailTag } from '../cocktail-tags/cocktail-tags.entity'
 import { Transformer } from '../utils/transformer'
 import { IExtendedCocktailIngredient, IIngredient, Ingredient } from '../ingredients/ingredients.entity'
 import { CocktailIngredient, ICocktailIngredient } from '../cocktail-ingredients/cocktail-ingredients.entity'
@@ -13,7 +12,6 @@ import { CocktailListAllFilters } from './cocktails.types'
 @injectable()
 class CocktailsRepository {
   private baseRepository: GenericRepository<ICocktail>
-  private cocktailTagRepository: GenericRepository<ICocktailTag>
   private tagRepository: GenericRepository<ITag>
   private reviewRepository: GenericRepository<IReview>
   private cocktailIngredientRepository: GenericRepository<ICocktailIngredient>
@@ -21,7 +19,6 @@ class CocktailsRepository {
 
   constructor() {
     this.baseRepository = new GenericRepository(Cocktail(sequelize), 'cocktailId')
-    this.cocktailTagRepository = new GenericRepository(CocktailTag(sequelize), null)
     this.tagRepository = new GenericRepository(Tag(sequelize), 'tagId')
     this.reviewRepository = new GenericRepository(Review(sequelize), 'reviewId')
     this.cocktailIngredientRepository = new GenericRepository(CocktailIngredient(sequelize), null)
@@ -29,16 +26,16 @@ class CocktailsRepository {
   }
 
   async listAll(offset = 0, limit = 100, where: CocktailListAllFilters) {
-    const tagIds = where.tagIds
+    // const tagIds = where.tagIds
     const ingredientIds = where.ingredientIds
     delete where.tagIds
     delete where.ingredientIds
 
-    let idsFilteredByTag: string[] | null = null
-    if (tagIds) {
-      const cocktailsTags = await this.cocktailTagRepository.listAll(0, 1000, { tagId: tagIds })
-      idsFilteredByTag = cocktailsTags.result.map(({ cocktailId }) => cocktailId)
-    }
+    // let idsFilteredByTag: string[] | null = null
+    // if (tagIds) {
+    //   const cocktailsTags = await this.cocktailTagRepository.listAll(0, 1000, { tagId: tagIds })
+    //   idsFilteredByTag = cocktailsTags.result.map(({ cocktailId }) => cocktailId)
+    // }
     let idsFilteredByIngredient: string[] | null = null
     if (ingredientIds) {
       const cocktailIngredients = await this.cocktailIngredientRepository.listAll(0, 1000, { ingredientId: ingredientIds })
@@ -47,7 +44,7 @@ class CocktailsRepository {
 
     const cocktails = await this.baseRepository.listAll(offset, 1000)
     const filteredCocktailsList = cocktails.result
-      .filter(({ cocktailId }) => !idsFilteredByTag || idsFilteredByTag.includes(cocktailId))
+      // .filter(({ cocktailId }) => !idsFilteredByTag || idsFilteredByTag.includes(cocktailId))
       .filter(({ cocktailId }) => !idsFilteredByIngredient || idsFilteredByIngredient.includes(cocktailId))
     const total = filteredCocktailsList.length + offset
     const slicedCocktailsList = filteredCocktailsList.slice(0, limit)
@@ -75,7 +72,7 @@ class CocktailsRepository {
 
   private async getExtendedCocktails(cocktails: ICocktail[]): Promise<ICocktail[]> {
     const cocktailIds = cocktails.map(cocktail => cocktail.cocktailId)
-    const tagRecords = await this.listTagsByCocktailIds(cocktailIds)
+    const tagRecords = await this.listTagsByCocktails(cocktails)
     const reviewRecords = await this.listReviewsByCocktailIds(cocktailIds)
     const ingredientRecords = await this.listIngredientsByCocktailIds(cocktailIds)
     return cocktails.map(cocktail => ({
@@ -88,34 +85,31 @@ class CocktailsRepository {
 
   async update(cocktailId: string, payload: Partial<ICocktail>) {
     await this.baseRepository.update(cocktailId, payload)
-    await this.updateCocktailTagsAndIngredients(cocktailId, payload)
+    if (payload.ingredients) {
+      await this.updateCocktailIngredients(cocktailId, payload.ingredients)
+    }
     return await this.get(cocktailId)
   }
 
   async create(payload: Partial<ICocktail>) {
     const cocktail = await this.baseRepository.create(payload)
     const cocktailId = cocktail.cocktailId
-    await this.updateCocktailTagsAndIngredients(cocktailId, payload)
+    if (payload.ingredients) {
+      await this.updateCocktailIngredients(cocktailId, payload.ingredients)
+    }
     return await this.get(cocktail.cocktailId)
   }
 
   async delete(cocktailId: string) {
     await this.baseRepository.delete({ cocktailId })
-    await this.cocktailTagRepository.delete({ cocktailId })
   }
 
-  private async listTagsByCocktailIds(cocktailIds: string[]): Promise<Record<string, ITag[]>> {
-    const cocktailTags = await this.cocktailTagRepository.listAll(0, 1000, { cocktailId: cocktailIds })
-    const cocktailToCocktailTagMap = Transformer.groupBy(cocktailTags.result, 'cocktailId')
-
-    const uniqueTagIds = Transformer.getUnique(Transformer.getObjectValues(cocktailTags.result, 'tagId'))
-    const tags = await this.tagRepository.listAll(0, 1000, { tagId: uniqueTagIds })
-    const tagMap = Transformer.groupBy(tags.result, 'tagId')
-
+  private async listTagsByCocktails(cocktails: ICocktail[]): Promise<Record<string, ITag[]>> {
+    const uniqueTags = Transformer.getUnique(cocktails.flatMap(cocktail => cocktail.tagIds || []))
+    const tags = await this.tagRepository.listAll(0, uniqueTags.length, { tagId: uniqueTags })
+    const tagsMap = Transformer.groupBy(tags.result, 'tagId')
     const result: Record<string, ITag[]> = {}
-    for (const cocktailId of cocktailIds) {
-      result[cocktailId] = (cocktailToCocktailTagMap[cocktailId] || []).map(cocktailTag => tagMap[cocktailTag.tagId][0])
-    }
+    cocktails.forEach(cocktail => result[cocktail.cocktailId] = (cocktail.tagIds || []).flatMap(tagId => tagsMap[tagId]).filter(Boolean))
     return result
   }
 
@@ -142,19 +136,6 @@ class CocktailsRepository {
       }))
     }
     return result
-  }
-
-  private async updateCocktailTagsAndIngredients(cocktailId: string, payload: Partial<ICocktail>) {
-    if (payload.tags) {
-      await this.updateCocktailTags(cocktailId, payload.tags)
-    }
-    if (payload.ingredients) {
-      await this.updateCocktailIngredients(cocktailId, payload.ingredients)
-    }
-  }
-
-  private async updateCocktailTags(cocktailId: string, tags: ITag[]) {
-    await this.updateCocktailLinkedEntities(cocktailId, tags, this.cocktailTagRepository, 'tagId')
   }
 
   private async updateCocktailIngredients(cocktailId: string, ingredients: IExtendedCocktailIngredient[]) {

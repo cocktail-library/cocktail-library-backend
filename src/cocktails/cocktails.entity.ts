@@ -18,6 +18,7 @@ interface ICocktail {
   abv: number;
   createdAt: Date;
   updatedAt: Date;
+  tagIds: string[];
   tags?: ITag[];
   reviews?: IReview[];
   ingredients?: IExtendedCocktailIngredient[];
@@ -38,6 +39,10 @@ const CocktailsEntity = (sequelize: Sequelize) => sequelize.define('Cocktail', {
   },
   slug: {
     type: DataTypes.STRING,
+  },
+  tagIds: {
+    type: DataTypes.ARRAY(DataTypes.STRING),
+    defaultValue: [],
   },
   isTasted: {
     type: DataTypes.BOOLEAN,
