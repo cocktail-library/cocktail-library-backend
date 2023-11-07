@@ -9,6 +9,7 @@ const cocktailsController = iocContainer.get<CocktailsController>(TYPES.Cocktail
 
 cocktailRouter.get('/', wrap(cocktailsController.listAll))
 cocktailRouter.get('/:cocktailStrId', wrap(cocktailsController.get))
+cocktailRouter.get('/by-slug/:cocktailSlug', wrap(cocktailsController.getBySlug))
 cocktailRouter.post('/', wrap(cocktailsController.create))
 cocktailRouter.put('/:cocktailStrId', wrap(cocktailsController.update))
 cocktailRouter.delete('/:cocktailStrId', wrap(cocktailsController.delete))

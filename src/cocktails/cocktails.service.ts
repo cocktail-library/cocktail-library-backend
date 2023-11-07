@@ -17,6 +17,10 @@ class CocktailsService {
     return this.cocktailsRepository.get(cocktailId)
   }
 
+  getCocktailBySlug(cocktailSlug: string) {
+    return this.cocktailsRepository.getBySlug(cocktailSlug)
+  }
+
   updateCocktail(cocktailId: string, payload: Partial<ICocktail>) {
     return this.cocktailsRepository.update(cocktailId, payload)
   }

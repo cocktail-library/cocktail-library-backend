@@ -38,6 +38,11 @@ class CocktailsController {
     return await this.cocktailsService.getCocktail(cocktailStrId)
   }
 
+  async getBySlug(req: Request) {
+    const { cocktailSlug } = req.params
+    return await this.cocktailsService.getCocktailBySlug(cocktailSlug)
+  }
+
   async update(req: Request) {
     const { cocktailStrId } = req.params
     const payload = req.body
