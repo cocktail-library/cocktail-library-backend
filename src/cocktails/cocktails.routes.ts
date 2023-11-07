@@ -8,9 +8,9 @@ const cocktailRouter = Router()
 const cocktailsController = iocContainer.get<CocktailsController>(TYPES.CocktailsController)
 
 cocktailRouter.get('/', wrap(cocktailsController.listAll))
-cocktailRouter.get('/:taskStrId', wrap(cocktailsController.get))
+cocktailRouter.get('/:cocktailStrId', wrap(cocktailsController.get))
 cocktailRouter.post('/', wrap(cocktailsController.create))
-cocktailRouter.put('/:taskStrId', wrap(cocktailsController.update))
-cocktailRouter.delete('/:taskStrId', wrap(cocktailsController.delete))
+cocktailRouter.put('/:cocktailStrId', wrap(cocktailsController.update))
+cocktailRouter.delete('/:cocktailStrId', wrap(cocktailsController.delete))
 
 export { cocktailRouter }

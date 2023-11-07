@@ -9,10 +9,16 @@ interface ICocktail {
   cocktailId: string;
   tagId: string;
   name: string;
+  slug: string;
+  isTasted: boolean;
+  rating: number;
+  recipe: string;
+  previewAssetStrId: string;
   description: string;
   abv: number;
   createdAt: Date;
   updatedAt: Date;
+  tagIds: string[];
   tags?: ITag[];
   reviews?: IReview[];
   ingredients?: IExtendedCocktailIngredient[];
@@ -29,6 +35,27 @@ const CocktailsEntity = (sequelize: Sequelize) => sequelize.define('Cocktail', {
     defaultValue: () => nanoid()
   },
   name: {
+    type: DataTypes.STRING,
+  },
+  slug: {
+    type: DataTypes.STRING,
+  },
+  tagIds: {
+    type: DataTypes.ARRAY(DataTypes.STRING),
+    defaultValue: [],
+  },
+  isTasted: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  rating: {
+    type: DataTypes.DECIMAL,
+    defaultValue: 0,
+  },
+  recipe: {
+    type: DataTypes.TEXT,
+  },
+  previewAssetStrId: {
     type: DataTypes.STRING,
   },
   description: {

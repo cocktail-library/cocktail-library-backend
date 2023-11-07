@@ -1,7 +1,7 @@
 import { DataTypes, Sequelize } from 'sequelize'
 
 interface ICocktailIngredient {
-  tagId: string;
+  cocktailId: string;
   ingredientId: string;
   unitCount: number;
 }
