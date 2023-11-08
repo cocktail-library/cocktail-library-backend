@@ -8,6 +8,7 @@ import { Transformer } from '../utils/transformer'
 import { IExtendedCocktailIngredient, IIngredient, Ingredient } from '../ingredients/ingredients.entity'
 import { CocktailIngredient, ICocktailIngredient } from '../cocktail-ingredients/cocktail-ingredients.entity'
 import { CocktailListAllFilters } from './cocktails.types'
+import { Op } from 'sequelize'
 
 @injectable()
 class CocktailsRepository {
@@ -25,35 +26,34 @@ class CocktailsRepository {
     this.ingredientRepository = new GenericRepository(Ingredient(sequelize), 'ingredientId')
   }
 
-  async listAll(offset = 0, limit = 100, where: CocktailListAllFilters) {
-    // const tagIds = where.tagIds
-    const ingredientIds = where.ingredientIds
-    delete where.tagIds
-    delete where.ingredientIds
-
-    // let idsFilteredByTag: string[] | null = null
-    // if (tagIds) {
-    //   const cocktailsTags = await this.cocktailTagRepository.listAll(0, 1000, { tagId: tagIds })
-    //   idsFilteredByTag = cocktailsTags.result.map(({ cocktailId }) => cocktailId)
-    // }
-    let idsFilteredByIngredient: string[] | null = null
-    if (ingredientIds) {
-      const cocktailIngredients = await this.cocktailIngredientRepository.listAll(0, 1000, { ingredientId: ingredientIds })
-      idsFilteredByIngredient = cocktailIngredients.result.map(({ cocktailId }) => cocktailId)
+  private getAbvFilter(abvMin: number | undefined, abvMax: number | undefined) {
+    if (!abvMax && !abvMin) {
+      return {}
     }
+    if (abvMax && !abvMin) {
+      return { abv: { [Op.lte]: abvMax } }
+    }
+    if (!abvMax && abvMin) {
+      return { abv: { [Op.gte]: abvMin } }
+    }
+    return { abv: { [Op.between]: [abvMin, abvMax] } }
+  }
 
-    const cocktails = await this.baseRepository.listAll(offset, 1000)
-    const filteredCocktailsList = cocktails.result
-      // .filter(({ cocktailId }) => !idsFilteredByTag || idsFilteredByTag.includes(cocktailId))
-      .filter(({ cocktailId }) => !idsFilteredByIngredient || idsFilteredByIngredient.includes(cocktailId))
-    const total = filteredCocktailsList.length + offset
-    const slicedCocktailsList = filteredCocktailsList.slice(0, limit)
-    const extendedCocktailsData = await this.getExtendedCocktails(slicedCocktailsList)
-
+  async listAll(offset = 0, limit = 100, where: CocktailListAllFilters) {
+    const { isTasted, abvMin, abvMax, tagGroups = [] } = where
+    const abvFilters = this.getAbvFilter(abvMin, abvMax)
+    const { result: rawCocktailsList } = await this.baseRepository.listAll(0, 1000, { ...isTasted && { isTasted }, ...abvFilters })
+    const filteredCocktailsList = rawCocktailsList.filter(cocktail => {
+      if (tagGroups.length === 0) {
+        return true
+      }
+      return tagGroups.every(tagGroup => Transformer.getExtendedArrayDifference(cocktail.tagIds || [], tagGroup).common.length > 0)
+    })
     return {
-      ...cocktails,
-      result: extendedCocktailsData,
-      total,
+      offset,
+      limit,
+      total: filteredCocktailsList.length,
+      result: await this.getExtendedCocktails(filteredCocktailsList.slice(offset, offset + limit))
     }
   }
 
@@ -139,26 +139,8 @@ class CocktailsRepository {
   }
 
   private async updateCocktailIngredients(cocktailId: string, ingredients: IExtendedCocktailIngredient[]) {
-    await this.updateCocktailLinkedEntities(cocktailId, ingredients, this.cocktailIngredientRepository, 'ingredientId')
-  }
-
-  // todo
-  //   14 строк как-то много, хочется сократить
-  private async updateCocktailLinkedEntities<T extends Partial<unknown>, R>(cocktailId: string, newEntities: T[], repository: GenericRepository<R>, additionalKeyName: string) {
-    const existingLinkedEntities = await repository.listAll(0, 1000, { cocktailId })
-    const existingAdditionalIds: string[] = existingLinkedEntities.result.map(entity => Transformer.forceExtractField(entity, additionalKeyName))
-    const newAdditionalIds: string[] = newEntities.map(entity => Transformer.forceExtractField(entity, additionalKeyName))
-    const { left: idsToDelete, right: idsToAdd } = Transformer.getExtendedArrayDifference(existingAdditionalIds, newAdditionalIds)
-    await repository.delete({ cocktailId, [additionalKeyName]: idsToDelete })
-    const entitiesToCreate: T[] = []
-    newEntities.forEach((entity) => {
-      const entityAdditionalId = Transformer.forceExtractField<T, string>(entity, additionalKeyName)
-      if (!idsToAdd.includes(entityAdditionalId)) {
-        return
-      }
-      entitiesToCreate.push({ ...entity, cocktailId })
-    })
-    await repository.bulkCreate(entitiesToCreate)
+    await this.cocktailIngredientRepository.delete({ cocktailId })
+    await this.cocktailIngredientRepository.bulkCreate(ingredients.map(({ ingredientId, unitCount }) => ({ cocktailId, ingredientId, unitCount })))
   }
 }
 

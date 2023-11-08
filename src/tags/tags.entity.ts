@@ -1,10 +1,20 @@
 import { DataTypes, Sequelize } from 'sequelize'
 import { nanoid } from 'nanoid'
 
+enum TagType {
+  ALCOHOL = 'alcohol',
+  TASTE = 'taste',
+  ACCENT = 'accent',
+  METHOD = 'method',
+  GLASS = 'glass',
+}
+
 interface ITag {
   id: number;
   tagId: string;
   name: string;
+  type: TagType;
+  slug: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -22,6 +32,12 @@ const TagsEntity = (sequelize: Sequelize) => sequelize.define('Tag', {
   name: {
     type: DataTypes.STRING,
   },
+  type: {
+    type: DataTypes.STRING,
+  },
+  slug: {
+    type: DataTypes.STRING,
+  },
   createdAt: {
     type: DataTypes.DATE,
   },
@@ -32,5 +48,6 @@ const TagsEntity = (sequelize: Sequelize) => sequelize.define('Tag', {
 
 export {
   TagsEntity as Tag,
-  ITag
+  ITag,
+  TagType
 }

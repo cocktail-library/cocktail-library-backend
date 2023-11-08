@@ -65,7 +65,8 @@ class Crud {
    * @param payload
    */
   static async bulkCreateEntity(entity: Entity, payload: Record<string, any>[]) {
-    return await entity.bulkCreate(payload)
+    const preparedPayload = payload.map(item => ({ ...item, id: undefined }))
+    return await entity.bulkCreate(preparedPayload)
   }
 
   /**

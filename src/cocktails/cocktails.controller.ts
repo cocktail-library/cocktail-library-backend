@@ -3,6 +3,7 @@ import { Request } from 'express'
 import { inject, injectable } from 'inversify'
 import 'reflect-metadata'
 import { TYPES } from '../ioc-types'
+import { CocktailListAllRawFilters } from './cocktails.types'
 
 @injectable()
 class CocktailsController {
@@ -16,17 +17,10 @@ class CocktailsController {
   }
 
   async listAll(req: Request) {
-    const offset = Number(req.query.offset) || 0
-    const limit = Number(req.query.limit) || 100
-    const where = req.query
-    if (req.query.tagIds) {
-      where.tagIds = req.query.tagIds.toString().split(',')
-    }
-    if (req.query.ingredientIds) {
-      where.tagIds = req.query.ingredientIds.toString().split(',')
-    }
-
-    const result = await this.cocktailsService.listCocktails(offset, limit, where)
+    const { offset: rawOffset, limit: rawLimit, ...where } = req.query
+    const offset = Number(rawOffset) || 0
+    const limit = Number(rawLimit) || 100
+    const result = await this.cocktailsService.listCocktails(offset, limit, where as CocktailListAllRawFilters)
     return {
       ...result,
       query: req.query,

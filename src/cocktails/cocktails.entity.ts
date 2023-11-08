@@ -7,7 +7,6 @@ import { IExtendedCocktailIngredient } from '../ingredients/ingredients.entity'
 interface ICocktail {
   id: number;
   cocktailId: string;
-  tagId: string;
   name: string;
   slug: string;
   isTasted: boolean;
